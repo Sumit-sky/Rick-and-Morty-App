@@ -17,11 +17,13 @@ const appSlice = createSlice({
             state.filters = { ...state.filters, ...action.payload };
         },
         toggleFavorite(state, action) {
-            const id = action.payload;
-            if (state.favorites.includes(id)) {
-                state.favorites = state.favorites.filter((favoriteId) => favoriteId !== id);
+            const character = action.payload;
+            const exists = state.favorites.find((fav) => fav.id === character.id);
+
+            if (exists) {
+                state.favorites = state.favorites.filter((fav) => fav.id !== character.id);
             } else {
-                state.favorites.push(id);
+                state.favorites.push(character);
             }
         }
         ,
