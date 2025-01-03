@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import FilterBar from '../components/filterBar';
@@ -9,37 +9,22 @@ import { Loader2 } from 'lucide-react';
 export default function CharacterList() {
     const { page, filters } = useSelector((state) => state.app);
     const [characters, setCharacters] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
 
-    const queryString = useMemo(() => {
+    useEffect(() => {
         const { status, species } = filters;
-        return new URLSearchParams({
+        const query = new URLSearchParams({
             page,
             ...(status && { status }),
             ...(species && { species }),
         }).toString();
+        setIsLoading(true);
+        axios
+            .get(`https://rickandmortyapi.com/api/character/?${query}`)
+            .then((response) => setCharacters(response.data.results))
+            .catch((error) => console.error(error));
+        setIsLoading(false);
     }, [page, filters]);
-
-    const fetchCharacters = useCallback(async () => {
-        try {
-            setIsLoading(true);
-            setError(null);
-            const response = await axios.get(
-                `https://rickandmortyapi.com/api/character/?${queryString}`
-            );
-            setCharacters(response.data.results);
-        } catch (err) {
-            setError(err.message);
-            setCharacters([]);
-        } finally {
-            setIsLoading(false);
-        }
-    }, [queryString]);
-
-    useEffect(() => {
-        fetchCharacters();
-    }, [fetchCharacters]);
 
     if (isLoading) {
         return (
@@ -49,44 +34,20 @@ export default function CharacterList() {
         );
     }
 
-    if (error) {
-        return (
-            <div className="w-full h-screen bg-black flex items-center justify-center">
-                <div className="text-white text-center">
-                    <p className="text-xl mb-4">Oops! Something went wrong</p>
-                    <p className="text-gray-400 mb-4">{error}</p>
-                    <button
-                        onClick={fetchCharacters}
-                        className="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                        Try Again
-                    </button>
-                </div>
-            </div>
-        );
-    }
-
     return (
-        <div className="w-full min-h-screen bg-black">
-            <div className="flex justify-between text-white w-full items-center p-4 max-md:flex-col max-md:items-start">
-                <h1 className="text-3xl w-max">Character List</h1>
+        <div className='w-full bg-black'>
+            <div className='flex justify-between text-white w-full items-center p-4 max-md:flex-col max-md:items-start'>
+                <h1 className='text-3xl w-max'>Character List</h1>
                 <FilterBar />
             </div>
-            <div className="w-full flex justify-center items-center flex-wrap">
-                {characters.length > 0 ? (
-                    <div className="flex w-11/12 flex-wrap justify-evenly my-4 max-sm:w-full gap-4">
-                        {characters.map((character) => (
-                            <CharacterCard
-                                character={character}
-                                key={character.id}
-                            />
-                        ))}
-                    </div>
-                ) : (
-                    <p className="text-white text-xl py-8">No characters found</p>
-                )}
+            <div className='w-full flex justify-center items-center flex-wrap'>
+                <div className="flex w-11/12 flex-wrap justify-evenly my-4 max-sm:w-4/12">
+                    {characters.map((character) => (
+                        <CharacterCard character={character} key={character.id} />
+                    ))}
+                </div>
             </div>
             <Pagination />
         </div>
     );
-}
+};

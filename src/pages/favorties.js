@@ -6,7 +6,11 @@ export default function Favorites() {
     const favorites = useSelector((state) => state.app.favorites);
 
     if (favorites.length === 0) {
-        return <p className='text-center text-3xl'>No favorites yet!</p>;
+        return (
+            <div className='w-full bg-black min-h-[90vh] flex justify-center items-center'>
+                <p className='text-center text-3xl text-white'>No favorites yet!</p>
+            </div>
+        );
     }
 
     return (
