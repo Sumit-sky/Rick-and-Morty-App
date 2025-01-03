@@ -41,7 +41,7 @@ export default function CharacterList() {
                 <FilterBar />
             </div>
             <div className='w-full flex justify-center items-center flex-wrap'>
-                <div className="flex w-11/12 flex-wrap justify-evenly my-4 max-sm:w-4/12">
+                <div className="flex w-11/12 flex-wrap justify-evenly my-4">
                     {characters.map((character) => (
                         <CharacterCard character={character} key={character.id} />
                     ))}
